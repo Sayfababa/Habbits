@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a246a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Habits XP">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Habits XP</title>
+<style>
+:root{--blue1:#0a246a;--blue2:#3a6ea5;--title1:#0058ee;--title2:#3b8cf5;--face:#ece9d8;--edge:#7f9db9;--green:#37a33b;--red:#d9302c;--txt:#000}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;touch-action:manipulation}
+body{font:13px Tahoma,"Segoe UI",Verdana,sans-serif;color:var(--txt);
+ background:linear-gradient(#5a9be6 0%,#3d7bd9 45%,#5fae3a 46%,#4c9a2a 100%);
+ display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#win{flex:1;min-height:0;margin:6px 6px 0;display:flex;flex-direction:column;background:var(--face);
+ border:3px solid #0831d9;border-top:0;border-radius:8px 8px 0 0;box-shadow:2px 2px 8px rgba(0,0,0,.5);overflow:hidden}
+.titlebar{height:30px;flex:none;display:flex;align-items:center;gap:6px;padding:0 4px 0 8px;color:#fff;font-weight:bold;font-size:14px;
+ text-shadow:1px 1px #0a1e5a;background:linear-gradient(#0997ff 0%,#0053ee 8%,#0050ee 40%,#06f 88%,#06f 93%,#005bff 95%,#003dd7 96%,#003dd7);border-radius:6px 6px 0 0}
+.titlebar .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbtn{width:22px;height:22px;border:1px solid #fff;border-radius:3px;background:linear-gradient(#3c81f3,#1b5be4);color:#fff;font:bold 12px Tahoma;display:grid;place-items:center}
+.tbtn.x{background:linear-gradient(#e7765d,#c3401f)}
+.hud{flex:none;padding:5px 6px;border-bottom:1px solid #aca899;display:grid;grid-template-columns:auto 1fr;gap:3px 6px;align-items:center;font-size:11px}
+.hud b{font-size:11px}
+.prog{height:13px;border:1px solid #686868;border-radius:3px;background:#fff;padding:1px;overflow:hidden;position:relative}
+.prog i{display:block;height:100%;width:0;transition:width .4s;
+ background:repeating-linear-gradient(90deg,#2ec33a 0 8px,transparent 8px 10px)}
+.prog.blue i{background:repeating-linear-gradient(90deg,#3a7be0 0 8px,transparent 8px 10px)}
+.prog.gold i{background:repeating-linear-gradient(90deg,#e8a400 0 8px,transparent 8px 10px)}
+.prog.red i{background:repeating-linear-gradient(90deg,var(--red) 0 8px,transparent 8px 10px)}
+.prog span{position:absolute;inset:0;font-size:9px;line-height:11px;text-align:center;font-weight:bold;text-shadow:0 0 2px #fff,0 0 2px #fff}
+.chips{grid-column:1/3;display:flex;gap:4px}
+.chip{flex:1;text-align:center;background:#fff;border:1px solid var(--edge);border-radius:3px;padding:2px 0;font-size:10px;line-height:1.15}
+.chip b{display:block;font-size:13px}
+.tabs{flex:none;display:flex;gap:1px;padding:4px 4px 0;border-bottom:1px solid #919b9c}
+.tab{flex:1;padding:6px 0 5px;text-align:center;font-size:12px;background:linear-gradient(#fff,#ecebe5);border:1px solid #919b9c;border-bottom:0;border-radius:4px 4px 0 0;position:relative;top:1px}
+.tab.on{background:#fcfcfe;border-top:3px solid #ffc83c;padding-top:4px;font-weight:bold;z-index:1}
+.pane{flex:1;min-height:0;display:none;flex-direction:column;gap:5px;padding:6px;background:#fcfcfe}
+.pane.on{display:flex}
+fieldset{border:1px solid #d0d0bf;border-radius:4px;padding:3px 6px 6px;background:#fff;min-height:0}
+legend{padding:0 3px;color:#0046d5;font-size:11.5px;font-weight:bold}
+.row{display:flex;gap:4px;align-items:center}
+.btn{white-space:nowrap;font:12px Tahoma,sans-serif;color:#000;padding:0 6px;min-height:32px;border:1px solid #003c74;border-radius:3px;
+ background:linear-gradient(#fff,#ecebe6 85%,#d6d0c5);box-shadow:inset 0 -1px #d6d0c5}
+.btn:active{background:linear-gradient(#e5e4de,#f3f3ee)}
+.btn.ok{background:linear-gradient(#b9f5b0,#5cc94e);font-weight:bold}
+.pray{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.pray .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;line-height:1.2;padding:3px 0;min-height:44px}
+.pray .btn em{font-style:normal;font-size:16px}
+.big{flex:1;display:flex;flex-direction:column;justify-content:space-around}
+input[type=number]{font:15px Tahoma;width:100%;min-width:0;height:32px;border:1px solid var(--edge);padding:0 6px;user-select:text;-webkit-user-select:text}
+.lbl{font-size:11px;display:flex;justify-content:space-between;margin-bottom:2px}
+.ex{flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px}
+.ex .row .btn{flex:1}
+.bignum{font-size:22px;font-weight:bold;min-width:76px;text-align:right}
+.q{display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px dotted #ccc;font-size:12px;min-height:0;flex:1}
+.q:last-child{border-bottom:0}
+.cb{width:20px;height:20px;flex:none;border:1px solid #1c5180;background:linear-gradient(135deg,#dcdcd7,#fff);display:grid;place-items:center;font-weight:bold;color:#21a121;font-size:15px}
+.q.done .t{text-decoration:line-through;color:#777}
+.q .t{flex:1;line-height:1.2}
+.q .p{font-size:10px;color:#0046d5;font-weight:bold;white-space:nowrap}
+.qlist{display:flex;flex-direction:column;height:100%}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:10px}
+.day{border:1px solid var(--edge);border-radius:3px;padding:2px 0;background:#fff}
+.day .bar{height:40px;margin:2px 4px;background:#eee;display:flex;align-items:flex-end;border:1px solid #bbb}
+.day .bar i{display:block;width:100%;background:linear-gradient(#5fd45a,#1f9a1f)}
+.day.today{border-color:#0046d5;font-weight:bold}
+.badges{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.bd{text-align:center;font-size:9px;line-height:1.1;padding:3px 0;border:1px solid #ddd;border-radius:3px;filter:grayscale(1);opacity:.45}
+.bd.on{filter:none;opacity:1;background:#fffbe0;border-color:#e8a400}
+.bd em{display:block;font-style:normal;font-size:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.small{font-size:10px;color:#555}
+#task{flex:none;height:calc(34px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:flex-start;
+ background:linear-gradient(#1f2f86 0,#3168d5 3px,#4993e6 6px,#2157d7 10%,#2663da 90%,#1941a5)}
+#start{height:34px;padding:0 16px 0 10px;color:#fff;font:italic bold 17px Tahoma;text-shadow:1px 1px #333;border:0;
+ border-radius:0 12px 12px 0;background:linear-gradient(#3c9c3c,#57c057 15%,#3a9d3a 80%,#2a7a2a);display:flex;align-items:center;gap:5px}
+#tasktxt{flex:1;color:#fff;font-size:11px;padding:0 8px;height:34px;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
+#clock{height:34px;padding:0 10px;color:#fff;font-size:12px;display:flex;align-items:center;background:linear-gradient(#0c59b9,#139ee9 10%,#18b9f1 15%,#139ee9 85%,#0c59b9);border-left:1px solid #1042af}
+#toast{position:fixed;left:50%;bottom:calc(46px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;transition:.3s;pointer-events:none;
+ width:min(300px,90vw);background:#ffffe1;border:1px solid #000;border-radius:6px;padding:6px 8px;font-size:12px;box-shadow:2px 2px 6px rgba(0,0,0,.4);z-index:9}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#toast b{color:#0046d5;display:block}
+.dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:10}
+.dlg.on{display:flex}
+.dlg .box{width:min(300px,88vw);background:var(--face);border:3px solid #0831d9;border-radius:8px 8px 0 0}
+.dlg .body{padding:10px;font-size:12px;line-height:1.4}
+@media (max-height:640px){.pray .btn{min-height:38px}.btn{min-height:28px}.day .bar{height:28px}.q{font-size:11px;padding:3px 4px}}
+</style>
+</head>
+<body>
+<div id="win">
+ <div class="titlebar"><span>🗂️</span><span class="t" id="ttl">Habits XP – Heute</span><span class="tbtn" onclick="showInfo()">?</span><span class="tbtn x" onclick="toast('Schließen?','Nein! Disziplin kennt kein X. 😉')">✕</span></div>
+ <div class="hud">
+  <b id="lvl">Lv 1</b><div class="prog gold"><i id="xpBar"></i><span id="xpTxt"></span></div>
+  <b>Heute</b><div class="prog"><i id="dayBar"></i><span id="dayTxt"></span></div>
+  <div class="chips">
+   <div class="chip">🔥 Streak<b id="cStreak">0</b></div>
+   <div class="chip">⭐ Punkte<b id="cPts">0</b></div>
+   <div class="chip">🏆 Gesamt<b id="cTot">0</b></div>
+   <div class="chip">✅ Quests<b id="cQ">0</b></div>
+  </div>
+ </div>
+ <div class="tabs">
+  <div class="tab on" data-p="today">Heute</div>
+  <div class="tab" data-p="train">Training</div>
+  <div class="tab" data-p="quests">Quests</div>
+  <div class="tab" data-p="stats">Stats</div>
+ </div>
+
+ <!-- HEUTE -->
+ <div class="pane on" id="today">
+  <fieldset><legend>🕌 Gebete (5×)</legend><div class="pray" id="pray"></div></fieldset>
+  <fieldset class="big"><legend>📖 Lesen lernen (60 Min)</legend>
+   <div class="lbl"><span id="readTxt">0 / 60 Min</span><span class="small">+5 Pkt / 15 Min</span></div>
+   <div class="prog blue"><i id="readBar"></i></div>
+   <div class="row" style="margin-top:5px"><button class="btn" style="flex:1" onclick="addRead(-15)">−15</button><button class="btn" style="flex:1" onclick="addRead(15)">+15</button><button class="btn" style="flex:1" onclick="addRead(30)">+30</button><button class="btn ok" style="flex:1" onclick="addRead(60)">60 ✓</button></div>
+  </fieldset>
+  <fieldset class="big"><legend>🍽️ Kalorien (Limit 2200)</legend>
+   <div class="lbl"><span id="calTxt">0 / 2200 kcal</span><span id="calLeft" class="small"></span></div>
+   <div class="prog"><i id="calBar"></i></div>
+   <div class="row" style="margin-top:5px"><input type="number" id="calIn" inputmode="numeric" placeholder="kcal…"><button class="btn ok" onclick="addCal()">+ Eintragen</button><button class="btn" onclick="undoCal()">↶</button></div>
+  </fieldset>
+  <fieldset><legend>💧 Wasser (8 Gläser)</legend><div class="row" id="water" style="justify-content:space-between"></div></fieldset>
+ </div>
+
+ <!-- TRAINING -->
+ <div class="pane" id="train"></div>
+
+ <!-- QUESTS -->
+ <div class="pane" id="quests">
+  <fieldset style="flex:3;display:flex;flex-direction:column"><legend>📅 Tägliche Quests (+15)</legend><div class="qlist" id="qDaily"></div></fieldset>
+  <fieldset style="flex:2;display:flex;flex-direction:column"><legend>🗓️ Wochen-Quests (+50)</legend><div class="qlist" id="qWeekly"></div></fieldset>
+  <div class="row"><button class="btn" style="flex:1" onclick="reroll()">🎲 1 Tagesquest tauschen (<span id="rr">1</span>)</button></div>
+ </div>
+
+ <!-- STATS -->
+ <div class="pane" id="stats">
+  <fieldset><legend>📊 Letzte 7 Tage</legend><div class="week" id="week"></div></fieldset>
+  <fieldset><legend>📈 Rekorde</legend><div class="stats" id="recs"></div></fieldset>
+  <fieldset style="flex:1"><legend>🏅 Abzeichen</legend><div class="badges" id="badges"></div></fieldset>
+ </div>
+</div>
+<div id="task"><button id="start" onclick="showInfo()"><span style="font-style:normal">🪟</span>start</button><div id="tasktxt"></div><div id="clock"></div></div>
+<div id="toast"></div>
+<div class="dlg" id="dlg" onclick="this.classList.remove('on')"><div class="box"><div class="titlebar"><span class="t">Punkte-System</span><span class="tbtn x">✕</span></div><div class="body">
+ 🕌 Gebet: <b>10</b> je Gebet (+20 Bonus für alle 5)<br>📖 Lesen: <b>5</b> je 15 Min (+10 bei 60)<br>🍽️ Kalorien eingetragen & ≤ 2200: <b>25</b><br>💧 Wasser: <b>2</b> je Glas<br>💪 Training: <b>1</b> je 5 Wdh. (+10 je 100er)<br>📅 Tagesquest <b>15</b> · 🗓️ Wochenquest <b>50</b><br><br>
+ 🔥 Streak zählt, wenn du ≥ 60 % des Tagesziels schaffst. Level-Up alle 500 Punkte.<br><br><span class="small">Daten bleiben nur auf deinem Handy.</span></div></div></div>
+
+<script>
+const LIMIT=2200, PRAYERS=[["Fajr","🌅"],["Dhuhr","☀️"],["Asr","🌤️"],["Maghrib","🌇"],["Isha","🌙"]];
+const EX=[["push","Liegestütze","💪"],["squat","Kniebeugen","🦵"],["sit","Sit-Ups","🔥"]];
+const DAILY=["10 Min spazieren gehen","Bett direkt nach dem Aufstehen machen","Kaltes Wasser ins Gesicht / kalt duschen","1 Seite Koran lesen","Morgen-Adhkar sprechen","Abend-Adhkar sprechen","100× Subhanallah sagen","Jemandem ein ehrliches Kompliment machen","Eltern/Familie anrufen","Kein Zucker heute","Keine Softdrinks heute","Kein Fast Food heute","Handy 1 Std. vor Schlaf weg","Vor 23 Uhr schlafen","5 Min Dehnen","5 Min bewusst atmen / Stille","3 Dinge aufschreiben, für die du dankbar bist","Zimmer 10 Min aufräumen","Ein Gemüse zu jeder Mahlzeit","Obst essen","Protein zu jeder Mahlzeit","Kein Social Media vor 12 Uhr","Social Media max. 30 Min","10 neue Wörter lernen","Laut vorlesen (5 Min)","Etwas Neues lernen (Video/Artikel)","Tagebuch: 5 Sätze","Ein Ziel für morgen planen","To-do-Liste schreiben","Wichtigste Aufgabe zuerst erledigen","Sadaqa geben (auch klein)","Jemandem helfen","Lächeln – mind. 5 Personen","Treppe statt Aufzug","10.000 Schritte","Plank 1 Minute","20 Klimmzüge / Rudern","Nichts Unnötiges kaufen","Geschirr sofort spülen","Sonne / frische Luft 15 Min","Ohne Handy essen","Langsam essen – 20 Min","Kein Essen nach 20 Uhr","Ein Glas Wasser direkt nach dem Aufstehen","Zähne 2× putzen + Zahnseide","Ein Dua für jemand anderen","Nachrichten-Pause heute","Einen Gegenstand aussortieren","E-Mails/Nachrichten aufräumen","Mit einem Freund sprechen","Nicht beschweren – ganzen Tag","Kein Lästern heute","Pünktlich sein – alle Termine","Wudu vor dem Schlafen","Sure Al-Mulk vor dem Schlafen","Istighfar 100×","Salawat 100×","Gesunden Snack vorbereiten","Morgen-Routine ohne Handy","Abendspaziergang nach dem Essen","2 Min Haltung-Check & Schultern lockern","Etwas Kreatives machen (10 Min)","Kopfrechnen / Rätsel 10 Min","Eine Seite schön schreiben (Handschrift)","Ausgaben des Tages notieren","Einen Fehler verzeihen (dir oder anderen)","20 Min ohne Bildschirm","Nase durch Atmen beim Sport","Gute Tat heimlich tun","Wochenplan checken"];
+const WEEKLY=["Ein ganzes Buch-Kapitel beenden","3× Training komplett geschafft","5 Tage unter 2200 kcal","Alle 35 Gebete der Woche","Freitagsgebet in der Moschee","Sure Al-Kahf am Freitag lesen","Einen Tag fasten (Mo/Do)","Meal-Prep für 3 Tage","Wohnung gründlich putzen","Einen langen Spaziergang (60 Min)","Familie besuchen","Einem alten Freund schreiben","Neues gesundes Rezept kochen","Bildschirmzeit-Woche < Vorwoche","7 Tage Wasser-Ziel erreicht","Ein Buch zu Ende lesen","Kleiderschrank ausmisten","Finanzen der Woche prüfen","Ein Ehrenamt / Spende","Wochenrückblick schreiben","1 Tag komplett zuckerfrei ×3","Neue Fähigkeit 2 Std. üben","Ein Wochenende ohne Social Media","Jeden Tag vor 23 Uhr geschlafen","Liegestütz-Rekord brechen","Lesen: 7 Std. diese Woche","Jemandem etwas beibringen","Eine Sure auswendig lernen","Natur-Ausflug machen","Digital Detox: 1 Tag offline"];
+const BADGES=[["🌱","Erster Tag",s=>s.days>=1],["🔥","3er Streak",s=>s.best>=3],["⚡","7er Streak",s=>s.best>=7],["👑","30er Streak",s=>s.best>=30],["🕌","5/5 Gebete",s=>s.fullPray>=1],["📿","7× alle Gebete",s=>s.fullPray>=7],["📖","1 Std gelesen",s=>s.fullRead>=1],["📚","10 Std gelesen",s=>s.readMin>=600],["💪","300er Tag",s=>s.fullTrain>=1],["🦾","10× 300er",s=>s.fullTrain>=10],["🥗","Kalorien-Held",s=>s.calOk>=7],["🎯","10 Quests",s=>s.quests>=10],["🏹","50 Quests",s=>s.quests>=50],["⭐","1000 Punkte",s=>s.total>=1000],["🌟","5000 Punkte",s=>s.total>=5000],["💯","Perfekter Tag",s=>s.perfect>=1],["💧","Hydriert",s=>s.water>=5],["🏆","Level 10",s=>s.lvl>=10]];
+
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const TODAY=()=>key(new Date());
+function weekKey(d=new Date()){const t=new Date(d);t.setHours(0,0,0,0);t.setDate(t.getDate()-((t.getDay()+6)%7));return key(t)}
+let DB;try{DB=JSON.parse(localStorage.getItem("habitsxp")||"{}")}catch(e){DB={}}
+DB.days=DB.days||{};DB.weeks=DB.weeks||{};
+const save=()=>{try{localStorage.setItem("habitsxp",JSON.stringify(DB))}catch(e){}};
+function rng(seed){let h=2166136261;for(const c of seed)h=Math.imul(h^c.charCodeAt(0),16777619);return()=>{h=Math.imul(h^h>>>15,2246822507);h=Math.imul(h^h>>>13,3266489909);return((h^=h>>>16)>>>0)/4294967296}}
+function pick(pool,n,seed,excl=[]){const r=rng(seed),idx=[...pool.keys()].filter(i=>!excl.includes(i));for(let i=idx.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}return idx.slice(0,n)}
+function day(k=TODAY()){if(!DB.days[k])DB.days[k]={pray:[0,0,0,0,0],read:0,cal:[],water:0,push:0,squat:0,sit:0,q:pick(DAILY,4,k),qd:[],rr:1};return DB.days[k]}
+function week(k=weekKey()){if(!DB.weeks[k])DB.weeks[k]={q:pick(WEEKLY,3,"w"+k),qd:[]};return DB.weeks[k]}
+
+function dayScore(d){
+ let p=0,max=0;const pr=d.pray.filter(Boolean).length;p+=pr*10+(pr===5?20:0);
+ p+=Math.floor(Math.min(d.read,60)/15)*5+(d.read>=60?10:0);
+ const c=d.cal.reduce((a,b)=>a+b,0);if(d.cal.length&&c<=LIMIT)p+=25;
+ p+=d.water*2;
+ for(const[e]of EX){p+=Math.floor(Math.min(d[e],100)/5)+(d[e]>=100?10:0)}
+ p+=d.qd.length*15;
+ return p}
+const DAYMAX=70+30+25+16+90+60; // 291
+function pct(d){const c=d.cal.reduce((a,b)=>a+b,0);
+ const parts=[d.pray.filter(Boolean).length/5,Math.min(d.read,60)/60,d.cal.length&&c<=LIMIT?1:0,d.water/8,...EX.map(([e])=>Math.min(d[e],100)/100),d.qd.length/d.q.length];
+ return parts.reduce((a,b)=>a+b,0)/parts.length}
+function totals(){
+ let total=0,days=0,readMin=0,fullPray=0,fullRead=0,fullTrain=0,calOk=0,quests=0,perfect=0,water=0;
+ for(const k in DB.days){const d=DB.days[k],s=dayScore(d);total+=s;if(s>0)days++;readMin+=d.read;
+  if(d.pray.every(Boolean))fullPray++;if(d.read>=60)fullRead++;if(EX.every(([e])=>d[e]>=100))fullTrain++;
+  const c=d.cal.reduce((a,b)=>a+b,0);if(d.cal.length&&c<=LIMIT)calOk++;quests+=d.qd.length;if(pct(d)>=.999)perfect++;if(d.water>=8)water++}
+ for(const k in DB.weeks){total+=DB.weeks[k].qd.length*50;quests+=DB.weeks[k].qd.length}
+ // streak
+ let streak=0,best=0,run=0;const t=new Date();const keys=Object.keys(DB.days).sort();
+ if(keys.length){const s=new Date(keys[0]+"T12:00");for(let d=new Date(s);key(d)<=key(t);d.setDate(d.getDate()+1)){const x=DB.days[key(d)];if(x&&pct(x)>=.6){run++;best=Math.max(best,run)}else if(key(d)!==key(t))run=0}}
+ streak=run;const lvl=Math.floor(total/500)+1;
+ return{total,days,readMin,fullPray,fullRead,fullTrain,calOk,quests,perfect,water,streak,best,lvl}}
+
+function toast(t,m){const e=$("toast");e.innerHTML="<b>"+t+"</b>"+m;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2200)}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}}
+let lastLvl=null;
+function render(){
+ const d=day(),w=week(),T=totals(),s=dayScore(d),p=pct(d);
+ if(lastLvl!==null&&T.lvl>lastLvl)toast("🎉 Level Up!","Du bist jetzt Level "+T.lvl+"!");lastLvl=T.lvl;
+ $("lvl").textContent="Lv "+T.lvl;const xp=T.total%500;$("xpBar").style.width=xp/5+"%";$("xpTxt").textContent=xp+" / 500 XP";
+ $("dayBar").style.width=p*100+"%";$("dayTxt").textContent=Math.round(p*100)+"% Tagesziel";
+ $("cStreak").textContent=T.streak;$("cPts").textContent=s;$("cTot").textContent=T.total;$("cQ").textContent=d.qd.length+w.qd.length+"/"+(d.q.length+w.q.length);
+ // prayers
+ $("pray").innerHTML=PRAYERS.map(([n,e],i)=>`<button class="btn ${d.pray[i]?"ok":""}" onclick="togPray(${i})"><em>${d.pray[i]?"✅":e}</em>${n}</button>`).join("");
+ $("readTxt").textContent=d.read+" / 60 Min";$("readBar").style.width=Math.min(d.read/60,1)*100+"%";
+ const c=d.cal.reduce((a,b)=>a+b,0);$("calTxt").textContent=c+" / "+LIMIT+" kcal";
+ $("calBar").style.width=Math.min(c/LIMIT,1)*100+"%";$("calBar").parentNode.className="prog"+(c>LIMIT?" red":c>LIMIT*.9?" gold":"");
+ $("calLeft").textContent=c>LIMIT?"⚠️ "+(c-LIMIT)+" drüber":(LIMIT-c)+" übrig · "+d.cal.length+" Einträge";
+ $("water").innerHTML=Array.from({length:8},(_,i)=>`<button class="btn" style="flex:1;min-height:34px;padding:0;font-size:17px" onclick="setWater(${i+1})">${i<d.water?"💧":"◌"}</button>`).join("");
+ // training
+ $("train").innerHTML=EX.map(([e,n,ic])=>`<fieldset class="ex"><legend>${ic} ${n} (100)</legend>
+  <div class="row"><div class="prog" style="flex:1;height:18px"><i style="width:${Math.min(d[e],100)}%"></i><span style="line-height:16px;font-size:11px">${d[e]>=100?"✅ GESCHAFFT":Math.max(100-d[e],0)+" noch"}</span></div><div class="bignum">${d[e]}</div></div>
+  <div class="row"><button class="btn" onclick="addEx('${e}',-5)">−5</button><button class="btn" onclick="addEx('${e}',5)">+5</button><button class="btn" onclick="addEx('${e}',10)">+10</button><button class="btn" onclick="addEx('${e}',25)">+25</button><button class="btn ok" onclick="addEx('${e}',100-${d[e]}>0?100-${d[e]}:10)">${d[e]>=100?"+10":"Rest ✓"}</button></div></fieldset>`).join("")+
+  `<div class="small" style="text-align:center">Tipp: In Sätzen aufteilen – z.B. 4× 25. Pausen 60–90 Sek.</div>`;
+ // quests
+ const ql=(arr,list,done,fn)=>arr.map(i=>`<div class="q ${done.includes(i)?"done":""}" onclick="${fn}(${i})"><div class="cb">${done.includes(i)?"✓":""}</div><div class="t">${list[i]}</div><div class="p">${done.includes(i)?"✔":"+"+(fn==="tQ"?15:50)}</div></div>`).join("");
+ $("qDaily").innerHTML=ql(d.q,DAILY,d.qd,"tQ");$("qWeekly").innerHTML=ql(w.q,WEEKLY,w.qd,"tW");$("rr").textContent=d.rr;
+ // stats
+ const wd=["So","Mo","Di","Mi","Do","Fr","Sa"];let h="";
+ for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const x=DB.days[key(dt)];const pp=x?pct(x):0;
+  h+=`<div class="day ${i===0?"today":""}">${wd[dt.getDay()]}<div class="bar"><i style="height:${pp*100}%"></i></div>${x?dayScore(x):0}</div>`}
+ $("week").innerHTML=h;
+ $("recs").innerHTML=[["🔥 Bester Streak",T.best],["📅 Aktive Tage",T.days],["📖 Lesestunden",(T.readMin/60).toFixed(1)],["🕌 5/5-Tage",T.fullPray],["💪 300er-Tage",T.fullTrain],["🥗 Kcal-OK-Tage",T.calOk]].map(([a,b])=>`<div class="chip">${a}<b>${b}</b></div>`).join("");
+ $("badges").innerHTML=BADGES.map(([e,n,f])=>`<div class="bd ${f(T)?"on":""}"><em>${e}</em>${n}</div>`).join("");
+ const tips=["Kleine Schritte, jeden Tag. 🐢","Du schaffst das – 1 Haken nach dem anderen!","Disziplin schlägt Motivation. 💪","Heute zählt. Nicht morgen.","Streak nicht brechen! 🔥"];
+ $("tasktxt").textContent=p>=1?"🏆 Perfekter Tag!":p>=.6?"🔥 Streak gesichert! Weiter so.":tips[new Date().getDate()%tips.length];
+ save()}
+function bump(old,msg){const n=dayScore(day());if(n>old){buzz();msg&&toast("+"+(n-old)+" Punkte",msg)}render()}
+function togPray(i){const d=day(),o=dayScore(d);d.pray[i]=d.pray[i]?0:1;bump(o,d.pray.every(Boolean)?"Alle 5 Gebete! MashaAllah 🤲":PRAYERS[i][0]+" erledigt")}
+function addRead(m){const d=day(),o=dayScore(d);d.read=Math.max(0,m===60?Math.max(60,d.read):d.read+m);bump(o,d.read>=60?"1 Stunde gelesen! 📚":"Weiter lesen!")}
+function addCal(){const v=parseInt($("calIn").value,10);if(!v||v<0||v>5000)return toast("Hinweis","Bitte gültige kcal eingeben.");const d=day(),o=dayScore(d);d.cal.push(v);$("calIn").value="";$("calIn").blur();
+ const c=d.cal.reduce((a,b)=>a+b,0);if(c>LIMIT){toast("⚠️ Limit überschritten",c+" kcal – morgen wieder!");render()}else bump(o,(LIMIT-c)+" kcal übrig")}
+function undoCal(){const d=day();if(d.cal.length){d.cal.pop();render()}}
+function setWater(n){const d=day(),o=dayScore(d);d.water=d.water===n?n-1:n;bump(o,d.water>=8?"Wasser-Ziel erreicht! 💧":"")}
+function addEx(e,n){const d=day(),o=dayScore(d);d[e]=Math.max(0,d[e]+n);bump(o,d[e]>=100&&d[e]-n<100?"100 geschafft! 💪":"")}
+function tQ(i){const d=day(),o=dayScore(d);d.qd=d.qd.includes(i)?d.qd.filter(x=>x!==i):[...d.qd,i];bump(o,"Quest erledigt! ✅")}
+function tW(i){const w=week();const was=w.qd.includes(i);w.qd=was?w.qd.filter(x=>x!==i):[...w.qd,i];if(!was){buzz();toast("+50 Punkte","Wochenquest geschafft! 🏆")}render()}
+function reroll(){const d=day();if(d.rr<1)return toast("Kein Tausch mehr","Morgen wieder 🎲");const open=d.q.filter(i=>!d.qd.includes(i));if(!open.length)return;
+ const out=open[open.length-1],nw=pick(DAILY,1,TODAY()+"r"+Math.random(),d.q)[0];d.q[d.q.indexOf(out)]=nw;d.rr--;render()}
+function showInfo(){$("dlg").classList.add("on")}
+const names={today:"Heute",train:"Training",quests:"Quests",stats:"Statistik"};
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab,.pane").forEach(x=>x.classList.remove("on"));t.classList.add("on");$(t.dataset.p).classList.add("on");$("ttl").textContent="Habits XP – "+names[t.dataset.p]});
+$("calIn").addEventListener("keydown",e=>{if(e.key==="Enter")addCal()});
+let curDay=TODAY();
+function tick(){const n=new Date();$("clock").textContent=pad(n.getHours())+":"+pad(n.getMinutes());if(TODAY()!==curDay){curDay=TODAY();render()}}
+setInterval(tick,15000);tick();render();
+if(!DB.seen){DB.seen=1;setTimeout(()=>toast("Willkommen! 👋","Tipp: Über Teilen → 'Zum Home-Bildschirm' als App installieren."),600)}
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
