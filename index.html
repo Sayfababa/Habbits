@@ -41,7 +41,7 @@ body{font:13px "Geneva","Verdana","Tahoma",sans-serif;color:#000;display:flex;fl
 .pane{flex:1;min-height:0;display:none;flex-direction:column;gap:6px;padding:6px;background:#fff}
 .pane.on{display:flex}
 fieldset{border:2px solid #000;padding:4px 6px 6px;background:#fff;min-height:0;box-shadow:3px 3px var(--dark)}
-legend{padding:0 4px;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:4px;background:#fff}
+legend{margin:0 auto;padding:0 6px;font-size:12px;font-weight:bold;display:flex;align-items:center;gap:4px;background:#fff}
 .row{display:flex;gap:4px;align-items:center}
 .btn{white-space:nowrap;font:12px Verdana,sans-serif;color:#000;padding:0 6px;min-height:34px;border:2px solid #000;background:#fff;box-shadow:2px 2px #000}
 .btn:active{transform:translate(2px,2px);box-shadow:none;background:var(--face)}
@@ -49,7 +49,15 @@ legend{padding:0 4px;font-size:12px;font-weight:bold;display:flex;align-items:ce
 .pray{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
 .pray .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;gap:2px;padding:3px 0;min-height:52px}
 .pray .btn.ok{background:var(--face);color:#000}
-.big{flex:1;display:flex;flex-direction:column;justify-content:space-around}
+.big{display:flex;flex-direction:column;gap:4px}
+.hero{flex:1;min-height:110px;display:flex;align-items:center;gap:10px;padding:6px 8px;background:repeating-linear-gradient(0deg,#fff 0 3px,#f0f0f0 3px 4px)}
+.hero .stage{height:100%;max-height:170px;aspect-ratio:1;flex:none;border:2px solid #000;background:#fff;display:grid;place-items:center;box-shadow:3px 3px #000;overflow:hidden}
+.hero .stage div{width:100%;height:100%;background:url(char.png) no-repeat;background-size:600% 100%;image-rendering:pixelated}
+.hero .stage.none div{background:url(sprites.png) no-repeat;background-size:400% 400%;background-position:100% 33.3333% !important;width:60%;height:60%}
+.hero .info{flex:1;display:flex;flex-direction:column;gap:5px;font-size:11px}
+.hero .name{font-size:15px;font-weight:bold}
+.hero .say{border:2px solid #000;background:#fff;padding:4px 6px;font-size:11px;position:relative}
+@keyframes bob{50%{transform:translateY(-3px)}}.hero .stage div{animation:bob 1.6s steps(2) infinite}
 input[type=number]{font:15px Verdana;width:100%;min-width:0;height:34px;border:2px solid #000;padding:0 6px;user-select:text;-webkit-user-select:text;box-shadow:inset 2px 2px var(--face)}
 .lbl{font-size:11px;display:flex;justify-content:space-between;margin-bottom:3px}
 .ex{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px}
@@ -110,15 +118,19 @@ input[type=number]{font:15px Verdana;width:100%;min-width:0;height:34px;border:2
  <!-- HEUTE -->
  <div class="pane on" id="today">
   <fieldset><legend><span class="ic s i3"></span> Gebete (5×)</legend><div class="pray" id="pray"></div></fieldset>
+  <fieldset class="hero"><legend><span class="ic s i11"></span> <span id="hName">Held</span></legend>
+   <div class="stage" id="hStage"><div id="hImg"></div></div>
+   <div class="info"><div class="name" id="hTitle">Stufe 1</div><div class="small" id="hNext"></div><div class="prog"><i id="hBar"></i><span id="hBarT"></span></div><div class="say" id="hSay"></div></div>
+  </fieldset>
   <fieldset class="big"><legend><span class="ic s i4"></span> Lesen lernen (60 Min)</legend>
    <div class="lbl"><span id="readTxt">0 / 60 Min</span><span class="small">+5 Pkt / 15 Min</span></div>
    <div class="prog blue"><i id="readBar"></i></div>
-   <div class="row" style="margin-top:5px"><button class="btn" style="flex:1" onclick="addRead(-15)">−15</button><button class="btn" style="flex:1" onclick="addRead(15)">+15</button><button class="btn" style="flex:1" onclick="addRead(30)">+30</button><button class="btn ok" style="flex:1" onclick="addRead(60)">60 </button></div>
+   <div class="row"><button class="btn" style="flex:1" onclick="addRead(-15)">−15</button><button class="btn" style="flex:1" onclick="addRead(15)">+15</button><button class="btn" style="flex:1" onclick="addRead(30)">+30</button><button class="btn ok" style="flex:1" onclick="addRead(60)">60 </button></div>
   </fieldset>
   <fieldset class="big"><legend><span class="ic s i5"></span> Kalorien (Limit 2200)</legend>
    <div class="lbl"><span id="calTxt">0 / 2200 kcal</span><span id="calLeft" class="small"></span></div>
    <div class="prog"><i id="calBar"></i></div>
-   <div class="row" style="margin-top:5px"><input type="number" id="calIn" inputmode="numeric" placeholder="kcal…"><button class="btn ok" onclick="addCal()">+ Eintragen</button><button class="btn" onclick="undoCal()">↶</button></div>
+   <div class="row"><input type="number" id="calIn" inputmode="numeric" placeholder="kcal…"><button class="btn ok" onclick="addCal()">+ Eintragen</button><button class="btn" onclick="undoCal()">↶</button></div>
   </fieldset>
   <fieldset><legend><span class="ic s i6"></span> Wasser (8 Gläser)</legend><div class="row" id="water" style="justify-content:space-between"></div></fieldset>
  </div>
@@ -196,7 +208,14 @@ let lastLvl=null;
 function render(){
  const d=day(),w=week(),T=totals(),s=dayScore(d),p=pct(d);
  if(lastLvl!==null&&T.lvl>lastLvl)toast(" Level Up!","Du bist jetzt Level "+T.lvl+"!");lastLvl=T.lvl;
- $("lvl").textContent="Lv "+T.lvl;const xp=T.total%500;$("xpBar").style.width=xp/5+"%";$("xpTxt").textContent=xp+" / 500 XP";
+ $("lvl").textContent="Lv "+T.lvl;
+ const ST=[[1,"Anfänger"],[5,"Lehrling"],[10,"Kämpfer"],[15,"Krieger"],[20,"Champion"],[25,"Legende"]];
+ const si=ST.reduce((a,x,i)=>T.lvl>=x[0]?i:a,0);$("hImg").style.backgroundPosition=(si*20)+"% 0";
+ $("hTitle").textContent=ST[si][1];$("hName").textContent="Dein Held · Lv "+T.lvl;
+ const nx=ST[si+1];if(nx){const from=(ST[si][0]-1)*500,to=(nx[0]-1)*500;$("hBar").style.width=Math.min(100,(T.total-from)/(to-from)*100)+"%";$("hBarT").textContent=(to-T.total)+" XP bis "+nx[1];$("hNext").textContent="Nächste Form ab Level "+nx[0]}
+ else{$("hBar").style.width="100%";$("hBarT").textContent="MAX";$("hNext").textContent="Höchste Form erreicht!"}
+ $("hSay").textContent=p>=1?"Perfekter Tag! Ich spüre die Kraft!":p>=.6?"Streak gesichert. Stark!":p>0?"Weiter so, ich werde stärker!":"Trainier mich – hak was ab!";
+const xp=T.total%500;$("xpBar").style.width=xp/5+"%";$("xpTxt").textContent=xp+" / 500 XP";
  $("dayBar").style.width=p*100+"%";$("dayTxt").textContent=Math.round(p*100)+"% Tagesziel";
  $("cStreak").textContent=T.streak;$("cPts").textContent=s;$("cTot").textContent=T.total;$("cQ").textContent=d.qd.length+w.qd.length+"/"+(d.q.length+w.q.length);
  // prayers
@@ -240,6 +259,7 @@ function showInfo(){$("dlg").classList.add("on")}
 const names={today:"Heute",train:"Training",quests:"Quests",stats:"Statistik"};
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab,.pane").forEach(x=>x.classList.remove("on"));t.classList.add("on");$(t.dataset.p).classList.add("on");$("ttl").textContent="Habits – "+names[t.dataset.p]});
 $("calIn").addEventListener("keydown",e=>{if(e.key==="Enter")addCal()});
+{const im=new Image();im.onerror=()=>$("hStage").classList.add("none");im.src="char.png"}
 let curDay=TODAY();
 function tick(){const n=new Date();$("clock").textContent=pad(n.getHours())+":"+pad(n.getMinutes());if(TODAY()!==curDay){curDay=TODAY();render()}}
 setInterval(tick,15000);tick();render();
