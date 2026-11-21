@@ -52,12 +52,12 @@ legend{margin:0 auto;padding:0 6px;font-size:12px;font-weight:bold;display:flex;
 .big{display:flex;flex-direction:column;gap:4px}
 .hero{flex:1;min-height:110px;display:flex;align-items:center;gap:10px;padding:6px 8px;background:repeating-linear-gradient(0deg,#fff 0 3px,#f0f0f0 3px 4px)}
 .hero .stage{height:100%;max-height:190px;aspect-ratio:2/3;flex:none;border:2px solid #000;background:#fff;display:grid;place-items:center;box-shadow:3px 3px #000;overflow:hidden}
-.hero .stage div{width:100%;height:100%;background:url(char.png) no-repeat;background-size:600% 100%;image-rendering:auto}
+.hero .stage div{width:100%;height:100%;background:url(char.png) no-repeat;background-size:400% 600%;image-rendering:auto}
 .hero .stage.none div{background:url(sprites.png) no-repeat;background-size:400% 400%;background-position:100% 33.3333% !important;width:60%;height:60%}
 .hero .info{flex:1;display:flex;flex-direction:column;gap:5px;font-size:11px}
 .hero .name{font-size:15px;font-weight:bold}
 .hero .say{border:2px solid #000;background:#fff;padding:4px 6px;font-size:11px;position:relative}
-@keyframes bob{50%{transform:translateY(-3px)}}.hero .stage div{animation:bob 1.6s steps(2) infinite}
+
 input[type=number]{font:15px Verdana;width:100%;min-width:0;height:34px;border:2px solid #000;padding:0 6px;user-select:text;-webkit-user-select:text;box-shadow:inset 2px 2px var(--face)}
 .lbl{font-size:11px;display:flex;justify-content:space-between;margin-bottom:3px}
 .ex{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px}
@@ -210,7 +210,7 @@ function render(){
  if(lastLvl!==null&&T.lvl>lastLvl)toast(" Level Up!","Du bist jetzt Level "+T.lvl+"!");lastLvl=T.lvl;
  $("lvl").textContent="Lv "+T.lvl;
  const ST=[[1,"Anfänger"],[5,"Lehrling"],[10,"Kämpfer"],[15,"Krieger"],[20,"Champion"],[25,"Legende"]];
- const si=ST.reduce((a,x,i)=>T.lvl>=x[0]?i:a,0);$("hImg").style.backgroundPosition=(si*20)+"% 0";
+ const si=ST.reduce((a,x,i)=>T.lvl>=x[0]?i:a,0);window.HSI=si;
  $("hTitle").textContent=ST[si][1];$("hName").textContent="Dein Held · Lv "+T.lvl;
  const nx=ST[si+1];if(nx){const from=(ST[si][0]-1)*500,to=(nx[0]-1)*500;$("hBar").style.width=Math.min(100,(T.total-from)/(to-from)*100)+"%";$("hBarT").textContent=(to-T.total)+" XP bis "+nx[1];$("hNext").textContent="Nächste Form ab Level "+nx[0]}
  else{$("hBar").style.width="100%";$("hBarT").textContent="MAX";$("hNext").textContent="Höchste Form erreicht!"}
@@ -260,6 +260,7 @@ const names={today:"Heute",train:"Training",quests:"Quests",stats:"Statistik"};
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab,.pane").forEach(x=>x.classList.remove("on"));t.classList.add("on");$(t.dataset.p).classList.add("on");$("ttl").textContent="Habits – "+names[t.dataset.p]});
 $("calIn").addEventListener("keydown",e=>{if(e.key==="Enter")addCal()});
 {const im=new Image();im.onerror=()=>$("hStage").classList.add("none");im.src="char.png"}
+let HF=0;setInterval(()=>{HF=(HF+1)%4;$("hImg").style.backgroundPosition=(HF*100/3)+"% "+((window.HSI||0)*20)+"%"},280);
 let curDay=TODAY();
 function tick(){const n=new Date();$("clock").textContent=pad(n.getHours())+":"+pad(n.getMinutes());if(TODAY()!==curDay){curDay=TODAY();render()}}
 setInterval(tick,15000);tick();render();
